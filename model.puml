@@ -1,0 +1,40 @@
+```plantuml
+' Abstract base class
+abstract class BaseEntity<T> {
++ Id: T
++ Guid: Guid
++ CreatedAt: DateTime
+}
+
+class User {
++ Email: string
++ Password: string
+}
+
+class Message {
++ Content: string
++ SenderId: int
++ MessengerEntryId: int
+}
+
+class MessengerEntry {
++ OwnerId: int
+--
++ AddParticipant(ownerId: int, newParticipant: User)
++ RemoveParticipant(ownerId: int, participantToRemove: User)
++ ValidateMessageSender(userId: int)
+- HasParticipant(userId: int): bool
+- IsOwner(userId: int): bool
+}
+
+' Inheritance
+BaseEntity <|-- User
+BaseEntity <|-- Message
+BaseEntity <|-- MessengerEntry
+
+' Relationships
+Message "*" --> "1" MessengerEntry : belongs to >
+Message "*" --> "1" User : sent by >
+MessengerEntry "1" --> "1" User : owned by >
+MessengerEntry "*" --> "*" User : has participants >
+```
