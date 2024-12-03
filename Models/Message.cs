@@ -1,52 +1,42 @@
 namespace MessengerAPI.Models;
 
-/*
-- Navigation properties
-  (e.g., Sender) simplify accessing related data in EF Core by allowing direct object references.
-
-- Foreign key properties
-   (e.g., SenderId) are used to establish relationships between entities in the database.
-
-- Why include both?
-    // Create a new message without loading the User object
-   var message = new Message("Hello!", senderId: 123); 
-   
-   // Later, if we need the Sender, EF Core will automatically load it
-   var sender = message.Sender;
-   
-- Virtual keyword?
-    Allows EF Core to override the property to lazy-load the related entity when accessed.
-   
-   https://www.google.com/search?client=firefox-b-d&q=navigation+properties+EF+Core#fpstate=ive&vld=cid:f417b895,vid:1nsw7dlrbLI,st:0
-*/
-
-
 // Message Entity
-// - Represents a message in a `MessengerEntry`
-// - Inherits from `BaseEntity` with an integer ID
+// - Represents a message in a chat
 public class Message : BaseEntity<int>
 {
-    // Content of the message
-    public string Content { get; set; }
+    // Properties ------------------------------------------
     
-    // Sender of the message
-    private int SenderId { get; set; }
-    public virtual User Sender { get; set; } = default!;
+    // EF Core: Navigation property
+    public virtual MessengerEntry MessengerEntry { get; private set; } = default!;
     
-    // MessengerEntry that the message belongs to
-    public int MessengerEntryId { get; set; }
-    public virtual MessengerEntry MessengerEntry { get; set; } = default!;
+    // EF Core: Navigation property
+    public virtual User Sender { get; private set; } = default!;
     
-    // Constructor for use Developers
-    //   when creating a new `Message` e.g. sending a message to a MessengerEntry
-    public Message(string content, int senderId, int messengerEntryId)
+    // EF Core: Creates Shadow Property "SenderId"/"MessengerEntryId" behind the scenes
+    // public int SenderId/MessengerEntryId { get; private init; }
+    
+    // EF Core automatically:
+    // 1. Creates "SenderId"/"MessengerEntryId" foreign key in database
+    // 2. Makes it required (NOT NULL) because property is non-nullable
+    // 3. Creates index on the foreign key
+    // 4. Sets up cascading delete by default
+    
+    // Question: What happens if we remove the MessengerEntry navigation property?
+    // "MessengerEntryId" INTEGER NULL,
+    //  CONSTRAINT "FK_Messages_MessengerEntries_MessengerEntryId" FOREIGN KEY ("MessengerEntryId") REFERENCES "MessengerEntries" ("Id")
+    // There is not CASCADE DELETE because the relationship is optional.
+
+    
+    public string Content { get; private init; }
+    
+    
+    // Constructors ------------------------------------------
+    public Message(string content, User sender)
     {
         Content = content;
-        SenderId = senderId;
-        MessengerEntryId = messengerEntryId;
+        Sender = sender;
     }
     
-    // Constructor for Entity Framework .NET Core
-    //   when the `Message` is materialized from the database into memory
+    // Constructor for Entity Framework
     protected Message() { }
 }

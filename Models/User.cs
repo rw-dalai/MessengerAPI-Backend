@@ -2,9 +2,10 @@ namespace MessengerAPI.Models;
 
 // User Entity
 // - Represents a user in the system
-// - Inherits from BaseEntity with an integer ID
 public class User : BaseEntity<int>
 {
+    // Properties ------------------------------------------
+    
     // Email should be unique
     public string Email { get; set; }
     
@@ -12,16 +13,18 @@ public class User : BaseEntity<int>
     // TODO: https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html
     public string Password { get; set; }
     
-
-    // Constructor for use Developers
-    //   when creating a new `User` e.g. in a registration process
-    public User(string email, string password)
+    // Address of the user
+    public Address Address { get; set; }
+    
+    
+    // Constructors ------------------------------------------
+    public User(string email, string password, Address address)
     {
         Email = email;
         Password = password;
+        Address = address;
     }
     
-    // Constructor for Entity Framework .NET Core
-    //   when the `User` is materialized from the database into memory
+    // Constructor for EF Core
     protected User() { }
 }

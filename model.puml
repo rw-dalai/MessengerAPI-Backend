@@ -1,31 +1,33 @@
 @startuml
-' Abstract base class
+' Entities
 abstract class BaseEntity<T> {
   + Id: T
   + Guid: Guid
   + CreatedAt: DateTime
 }
 
-class User {
+class User <<Entity>> {
   + Email: string
   + Password: string
+  + Address: Address
 }
 
-class Message {
+class Message <<Entity>> {
   + Content: string
   + Sender: User
   + MessengerEntry: MessengerEntry
 }
 
-class MessengerEntry {
+class MessengerEntry <<Entity>> {
   + Owner: User
-  + Participants: List<User>
-  + Messages: List<Message>
-  --
-  + AddParticipant(ownerId: int, newParticipant: User)
-  + RemoveParticipant(ownerId: int, participantToRemove: User)
-  - HasParticipant(userId: int): bool
-  - IsOwner(userId: int): bool
+  + Participants: List
+  + Messages: List
+}
+
+class Address <<Value Object>> {
+  + Street: string
+  + City: string
+  + Country: string
 }
 
 ' Inheritance
@@ -34,9 +36,9 @@ BaseEntity <|-- Message
 BaseEntity <|-- MessengerEntry
 
 ' Relationships
-Message "*" --> "1" MessengerEntry : belongs to >
-Message "*" --> "1" User : sent by >
-MessengerEntry "1" --> "1" User : owned by >
-MessengerEntry "*" --> "*" User : has participants >
-
+User --  Address
+User "1" <-- "0..n" Message : sends >
+User "1" <-- "0..n" MessengerEntry : creates >
+User "0..n" <-- "0..n" MessengerEntry : participates >
+MessengerEntry "1" <--> "0..n" Message
 @enduml
